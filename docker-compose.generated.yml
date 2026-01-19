@@ -1,0 +1,49 @@
+services:
+  fastapi_app:
+    build:
+      context: C:\Users\vikas\Desktop\MCP_Alexa
+      dockerfile: Dockerfile
+    container_name: fastapi_mcp_app
+    depends_on:
+      - mcp_calculator
+      - mcp_converter
+    environment:
+      - MODEL_PATH=/models/gorilla-openfunctions-v2-q4_K_M.gguf
+      - MCP_SERVER_URLS=http://mcp_calculator:8000/sse,http://mcp_converter:8000/sse
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    volumes:
+      - ./gorilla-openfunctions-v2-GGUF:/models:ro
+      - ./mcp_tools_lancedb:/home/appuser/app/mcp_tools_lancedb
+      - .:/home/appuser/app:ro
+
+    runtime: nvidia   # 👈 THIS is the key line
+
+  mcp_calculator:
+    build:
+      context: ./own_MCP_servers/calculator
+      dockerfile: Dockerfile
+    container_name: mcp_calculator
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+    ports:
+      - 8000:8000
+    restart: unless-stopped
+    volumes:
+      - ./own_MCP_servers/calculator/app:/app:ro
+
+  mcp_converter:
+    build:
+      context: ./own_MCP_servers/converter
+      dockerfile: Dockerfile
+    container_name: mcp_converter
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+    ports:
+      - 8001:8000
+    restart: unless-stopped
+    volumes:
+      - ./own_MCP_servers/converter/app:/app:ro

@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+pydantic
+llama-cpp-python
+llama-index
+llama-index-tools-mcp
+lancedb
+aiohttp
+requests
+python-dotenv
+sentence-transformers
+numpy<2.0
